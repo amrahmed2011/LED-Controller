@@ -1,0 +1,5 @@
+{
+  "name": "LED Controller",
+  "description": "A 4-switch controller for remote LEDs connected to Firebase Realtime Database.",
+  "requestFramePermissions": []
+}
