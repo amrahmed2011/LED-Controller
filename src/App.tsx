@@ -4,8 +4,8 @@
  */
 
 import { useState } from 'react';
-import { motion } from 'motion/react';
-import { Power } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Power, CheckCircle2 } from 'lucide-react';
 
 const FIREBASE_URL = 'https://nod-mcu-72dcf-default-rtdb.firebaseio.com/led.json';
 
@@ -17,6 +17,7 @@ export default function App() {
     4: false,
   });
   const [loading, setLoading] = useState<number | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const toggleSwitch = async (id: number) => {
     const newState = !switchStates[id];
@@ -34,6 +35,9 @@ export default function App() {
 
       if (response.ok) {
         setSwitchStates(prev => ({ ...prev, [id]: newState }));
+        setStatusMessage(`LED ${id} has successfully turned ${newState ? 'ON' : 'OFF'}`);
+        // Clear message after 3 seconds
+        setTimeout(() => setStatusMessage(null), 3000);
       } else {
         console.error('Failed to update LED state');
       }
@@ -49,7 +53,7 @@ export default function App() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/20 backdrop-blur-md p-8 rounded-3xl shadow-2xl border border-white/30 w-full max-w-md"
+        className="bg-white/20 backdrop-blur-md p-8 rounded-3xl shadow-2xl border border-white/30 w-full max-w-md relative overflow-hidden"
       >
         <h1 className="text-4xl font-bold text-white mb-8 text-center tracking-tight">
           LED Controller
@@ -86,6 +90,24 @@ export default function App() {
             </div>
           ))}
         </div>
+
+        <AnimatePresence mode="wait">
+          {statusMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: 'auto' }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              className="mt-6 overflow-hidden"
+            >
+              <div className="bg-emerald-500/20 border border-emerald-500/30 p-4 rounded-2xl flex items-center gap-3 text-emerald-50">
+                <CheckCircle2 size={20} className="text-emerald-300 shrink-0" />
+                <p className="text-sm font-medium leading-tight">
+                  {statusMessage}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="mt-8 text-center">
           <p className="text-white/60 text-sm font-mono">
